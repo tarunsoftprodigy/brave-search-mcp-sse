@@ -2,6 +2,20 @@ Thank you for installing {{ .Chart.Name }}.
 
 Your release is named {{ .Release.Name }}.
 
+CONFIGURATION NOTES:
+------------------
+1. Brave Search API Key:
+   {{- if .Values.braveSearch.apiKey }}
+   - Using API key provided in values
+   {{- else if .Values.braveSearch.existingSecret }}
+   - Using existing secret: {{ .Values.braveSearch.existingSecret }}
+   - Secret key: {{ .Values.braveSearch.existingSecretKey }}
+   {{- else }}
+   WARNING: No API key or existing secret specified. The server will not function without a valid Brave Search API key.
+   {{- end }}
+
+DEPLOYMENT STATUS:
+----------------
 To verify the deployment status, run:
   kubectl get pods -l "app.kubernetes.io/instance={{ .Release.Name }}"
 
@@ -27,4 +41,14 @@ To access the service, wait for the load balancer to be provisioned, then run:
 {{- else if contains "ClusterIP" .Values.service.type }}
 To access the service from within the cluster, use:
   kubectl port-forward svc/{{ include "brave-search-mcp-sse.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
-{{- end }} 
+{{- end }}
+
+CONFIGURATION HELP:
+-----------------
+To use an existing secret:
+1. Make sure your secret exists in the namespace
+2. The secret should have your Brave API key stored under the key "{{ .Values.braveSearch.existingSecretKey }}"
+3. The chart is configured to use secret named "{{ .Values.braveSearch.existingSecret }}"
+
+To provide the API key directly in values:
+  helm upgrade {{ .Release.Name }} . --set braveSearch.apiKey=your-api-key 

@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "brave-search-mcp-sse.fullname" . }}
+  {{- if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  {{- end }}
   labels:
     {{- include "brave-search-mcp-sse.labels" . | nindent 4 }}
 spec:
@@ -26,8 +29,8 @@ spec:
             - name: BRAVE_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "brave-search-mcp-sse.fullname" . }}
-                  key: brave-api-key
+                  name: {{ .Values.braveSearch.existingSecret | default (include "brave-search-mcp-sse.fullname" .) }}
+                  key: {{ .Values.braveSearch.existingSecretKey }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           readinessProbe:

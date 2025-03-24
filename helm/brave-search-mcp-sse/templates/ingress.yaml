@@ -16,6 +16,9 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
+  {{- if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  {{- end }}
   labels:
     {{- include "brave-search-mcp-sse.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
