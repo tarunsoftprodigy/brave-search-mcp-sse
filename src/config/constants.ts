@@ -27,4 +27,5 @@ export const API_ENDPOINTS = {
 };
 
 // Server configuration
-export const PORT = 8080; 
+export const PORT = 8080;
+export const PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:8080'; // e.g., https://brave-search.shoofio.com 

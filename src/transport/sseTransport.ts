@@ -1,7 +1,7 @@
 import express from "express";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import { PORT } from "../config/constants.js";
+import { PORT, PUBLIC_URL } from "../config/constants.js";
 
 /**
  * Set up the Express server with SSE transport
@@ -42,8 +42,14 @@ export function setupSSETransport(server: Server) {
 
   // Start the server
   return app.listen(PORT, () => {
-    console.error(`Brave Search MCP Server running at http://localhost:${PORT}`);
-    console.error(`Connect to SSE endpoint at http://localhost:${PORT}/sse`);
-    console.error(`Health endpoint available at http://localhost:${PORT}/health`);
+    console.error(`Brave Search MCP Server running on port ${PORT}`);
+    if (PUBLIC_URL) {
+      console.error(`Server accessible at ${PUBLIC_URL}`);
+      console.error(`SSE endpoint available at ${PUBLIC_URL}/sse`);
+      console.error(`Health endpoint available at ${PUBLIC_URL}/health`);
+    } else {
+      console.error('SSE endpoint available at /sse');
+      console.error('Health endpoint available at /health');
+    }
   });
 } 

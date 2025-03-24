@@ -1,6 +1,7 @@
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { performWebSearch } from "../services/braveSearchApi.js";
 import { isBraveWebSearchArgs, WebSearchArgs } from "../types/braveSearch.js";
+import { searchRequestsTotal, searchResponseTime, searchErrors } from "../services/metrics.js";
 
 // Web Search Tool definition
 export const WEB_SEARCH_TOOL: Tool = {
@@ -34,15 +35,32 @@ export const WEB_SEARCH_TOOL: Tool = {
 
 // Handler for web search requests
 export async function handleWebSearch(args: unknown) {
-  if (!isBraveWebSearchArgs(args)) {
-    throw new Error("Invalid arguments for brave_web_search");
+  // Track request
+  searchRequestsTotal.inc({ type: 'web' });
+  
+  const startTime = Date.now();
+  try {
+    if (!isBraveWebSearchArgs(args)) {
+      throw new Error("Invalid arguments for brave_web_search");
+    }
+    
+    const { query, count = 10, offset = 0 } = args as WebSearchArgs;
+    const results = await performWebSearch(query, count, offset);
+    
+    // Track response time
+    const duration = (Date.now() - startTime) / 1000;
+    searchResponseTime.observe({ type: 'web' }, duration);
+    
+    return {
+      content: [{ type: "text", text: results }],
+      isError: false,
+    };
+  } catch (error) {
+    // Track error
+    searchErrors.inc({ 
+      type: 'web',
+      error: error instanceof Error ? error.message : 'unknown'
+    });
+    throw error;
   }
-  
-  const { query, count = 10, offset = 0 } = args as WebSearchArgs;
-  const results = await performWebSearch(query, count, offset);
-  
-  return {
-    content: [{ type: "text", text: results }],
-    isError: false,
-  };
 } 
