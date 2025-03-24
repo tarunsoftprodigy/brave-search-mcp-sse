@@ -10,6 +10,11 @@ export function setupSSETransport(server: Server) {
   const app = express();
   let transport: SSEServerTransport | null = null;
 
+  // Add health endpoint
+  app.get("/health", (req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
+
   // Handle SSE connections
   app.get("/sse", (req, res) => {
     console.error("SSE connection established");
@@ -39,5 +44,6 @@ export function setupSSETransport(server: Server) {
   return app.listen(PORT, () => {
     console.error(`Brave Search MCP Server running at http://localhost:${PORT}`);
     console.error(`Connect to SSE endpoint at http://localhost:${PORT}/sse`);
+    console.error(`Health endpoint available at http://localhost:${PORT}/health`);
   });
 } 
