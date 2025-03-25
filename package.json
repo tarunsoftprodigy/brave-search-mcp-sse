@@ -1,6 +1,6 @@
 {
   "name": "brave-search-mcp-sse",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An MCP server implementation that integrates the Brave Search API, providing both web and local search capabilities.",
   "type": "module",
   "main": "dist/index.js",
