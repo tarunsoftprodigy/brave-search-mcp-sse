@@ -1,6 +1,7 @@
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { performLocalSearch } from "../services/braveSearchApi.js";
 import { isBraveLocalSearchArgs, LocalSearchArgs } from "../types/braveSearch.js";
+import { searchCounter, searchLatency } from '../transport/metrics.js';
 
 // Local Search Tool definition
 export const LOCAL_SEARCH_TOOL: Tool = {
@@ -33,15 +34,23 @@ export const LOCAL_SEARCH_TOOL: Tool = {
 
 // Handler for local search requests
 export async function handleLocalSearch(args: unknown) {
-  if (!isBraveLocalSearchArgs(args)) {
-    throw new Error("Invalid arguments for brave_local_search");
+  const end = searchLatency.startTimer({ type: 'local' });
+  try {
+    searchCounter.inc({ type: 'local' });
+    if (!isBraveLocalSearchArgs(args)) {
+      throw new Error("Invalid arguments for brave_local_search");
+    }
+    
+    const { query, count = 5 } = args as LocalSearchArgs;
+    const results = await performLocalSearch(query, count);
+    
+    end();
+    return {
+      content: [{ type: "text", text: results }],
+      isError: false,
+    };
+  } catch (error) {
+    end();
+    throw error;
   }
-  
-  const { query, count = 5 } = args as LocalSearchArgs;
-  const results = await performLocalSearch(query, count);
-  
-  return {
-    content: [{ type: "text", text: results }],
-    isError: false,
-  };
 } 

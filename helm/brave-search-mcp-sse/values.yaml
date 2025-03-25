@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: shoofio/brave-search-mcp-sse
-  tag: "1.0.0"
+  tag: "1.0.2"
   pullPolicy: IfNotPresent
 
 nameOverride: ""
@@ -61,4 +61,4 @@ mcp:
   # The name that identifies this MCP server to clients
   name: "brave-search-sse"
   # The version of this MCP server implementation
-  version: "1.0.0"
+  version: "1.0.2"
