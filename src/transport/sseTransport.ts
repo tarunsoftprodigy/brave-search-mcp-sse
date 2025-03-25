@@ -29,10 +29,27 @@ export function setupSSETransport(server: Server) {
   // Handle SSE connections
   app.get("/sse", (req: Request, res: Response) => {
     console.error("SSE connection established");
+    
+    // Set headers for SSE
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // Disable proxy buffering
+    
+    // Increase timeout to prevent connection from closing
+    req.socket.setTimeout(0);
+    res.setTimeout(0);
+    
     transport = new SSEServerTransport("/messages", res);
+
+    // Send keep-alive ping every 30 seconds
+    const keepAlivePing = setInterval(() => {
+      res.write(':\n\n'); // SSE comment as ping
+    }, 30000);
 
     req.on('close', () => {
       console.error("Client disconnected");
+      clearInterval(keepAlivePing);
       transport = null;
     });
 
