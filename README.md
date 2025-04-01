@@ -188,6 +188,33 @@ The server exposes the following tools to connected clients:
 curl -N http://localhost:8080/ # Or your deployed endpoint
 ```
 
+### Client Configuration Example (Cursor)
+
+To use this server with an MCP client like Cursor, you need to configure the client to connect to the server's SSE endpoint.
+
+Add the following configuration to your Cursor settings (`mcp.json` or similar configuration file), replacing the URL with the actual address and port where your `brave-search-mcp-sse` server is accessible:
+
+```json
+{
+  "mcpServers": {
+    "brave-search": {
+      "transport": "sse",
+      "url": "http://localhost:8080/sse"
+    }
+  }
+}
+```
+
+**Explanation:**
+
+*   `transport`: Must be set to `"sse"` for this server.
+*   `url`: This is the crucial part.
+    *   If running locally via Docker (as shown in the example), `http://localhost:8080/sse` is likely correct.
+    *   If running in Kubernetes, replace `localhost:8080` with the appropriate Kubernetes Service address/port or the Ingress hostname/path configured to reach the server's port 8080.
+    *   Ensure the URL path ends with `/sse`.
+
+*(Similar configuration steps might apply to other MCP clients that support the SSE transport, like recent versions of Claude Desktop, but refer to their specific documentation.)*
+
 ## Project Structure
 
 ```
