@@ -3,6 +3,7 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { PORT, PUBLIC_URL } from "../config/constants.js";
 import { register } from './metrics.js';
+import logger from '../utils/logger.js';
 
 /**
  * Set up the Express server with SSE transport
@@ -28,7 +29,7 @@ export function setupSSETransport(server: Server) {
 
   // Handle SSE connections
   app.get("/sse", (req: Request, res: Response) => {
-    console.error("SSE connection established");
+    logger.info(`SSE connection established`);
     
     // Set headers for SSE
     res.setHeader('Content-Type', 'text/event-stream');
@@ -48,38 +49,44 @@ export function setupSSETransport(server: Server) {
     }, 30000);
 
     req.on('close', () => {
-      console.error("Client disconnected");
+      logger.info(`Client disconnected`);
       clearInterval(keepAlivePing);
       transport = null;
     });
 
     server.connect(transport)
-      .then(() => console.error("Brave Search MCP Server connected to transport"))
-      .catch((err: unknown) => console.error("Failed to connect server to transport:", err instanceof Error ? err.message : err));
+      .then(() => logger.info(`Transport connected successfully`))
+      .catch((err: unknown) => logger.error(`Failed to connect transport: ${err instanceof Error ? err.message : err}`));
   });
 
   // Handle POST messages from client
   app.post("/messages", (req: Request, res: Response) => {
+    const sessionId = req.query.sessionId as string;
+    logger.info(`POST /messages received [session: ${sessionId || 'undefined'}]`);
+
     if (transport) {
-      transport.handlePostMessage(req, res);
+      // Pass the original request directly to the SDK handler
+      transport.handlePostMessage(req, res); 
     } else {
-      console.error("Message received but no active transport");
+      logger.error('Message received but no active transport');
       res.status(400).send({ error: "No active transport" });
     }
   });
 
   // Start the server
   return app.listen(PORT, () => {
-    console.error(`Brave Search MCP Server running on port ${PORT}`);
+    logger.info(`Server started on port ${PORT}`);
     if (PUBLIC_URL) {
-      console.error(`Server accessible at ${PUBLIC_URL}`);
-      console.error(`SSE endpoint available at ${PUBLIC_URL}/sse`);
-      console.error(`Health endpoint available at ${PUBLIC_URL}/health`);
-      console.error(`Metrics endpoint available at ${PUBLIC_URL}/metrics`);
+      // Log endpoints as separate messages
+      logger.info(`> Public URL: ${PUBLIC_URL}`);
+      logger.info(`> SSE endpoint: ${PUBLIC_URL}/sse`);
+      logger.info(`> Health endpoint: ${PUBLIC_URL}/health`);
+      logger.info(`> Metrics endpoint: ${PUBLIC_URL}/metrics`);
     } else {
-      console.error('SSE endpoint available at /sse');
-      console.error('Health endpoint available at /health');
-      console.error('Metrics endpoint available at /metrics');
+      // Log endpoints as separate messages
+      logger.info(`> SSE endpoint: /sse`);
+      logger.info(`> Health endpoint: /health`);
+      logger.info(`> Metrics endpoint: /metrics`);
     }
   });
 } 
