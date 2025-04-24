@@ -245,4 +245,4 @@ Contributions are welcome! Please feel free to submit a Pull Request with your c
 
 ## License
 
-This project is licensed under the [MIT License](./LICENSE) (assuming a LICENSE file exists or will be added).
+This MCP server is licensed under the[MIT License](./LICENSE). This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository.
