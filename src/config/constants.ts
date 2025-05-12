@@ -15,7 +15,7 @@ export const requestCount = {
 
 // Server metadata
 export const SERVER_INFO = {
-  name: "brave-search-mcp",
+  name: "brave-mcp",
   version: "0.1.0",
 };
 
