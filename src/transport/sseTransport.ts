@@ -4,6 +4,7 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { PORT, PUBLIC_URL } from "../config/constants.js";
 import { register } from './metrics.js';
 import logger from '../utils/logger.js';
+import { sseAuthMiddleware } from "../middleware/security.js";
 
 /**
  * Set up the Express server with SSE transport
@@ -28,7 +29,7 @@ export function setupSSETransport(server: Server) {
   });
 
   // Handle SSE connections
-  app.get("/sse", (req: Request, res: Response) => {
+  app.get("/sse", sseAuthMiddleware, (req: Request, res: Response) => {s
     logger.info(`SSE connection established`);
     
     // Set headers for SSE
