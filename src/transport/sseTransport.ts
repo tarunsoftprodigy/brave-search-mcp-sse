@@ -29,7 +29,7 @@ export function setupSSETransport(server: Server) {
   });
 
   // Handle SSE connections
-  app.get("/sse", sseAuthMiddleware, (req: Request, res: Response) => {s
+  app.get("/sse", sseAuthMiddleware, (req: Request, res: Response) => {
     logger.info(`SSE connection established`);
     
     // Set headers for SSE
